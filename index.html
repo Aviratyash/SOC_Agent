@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L1 SOC Agent - Autonomous Security Analysis</title>
+    <meta name="description" content="Advanced AI-powered security operations center agent for automated threat analysis and response">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: 'hsl(220, 20%, 8%)',
+                        foreground: 'hsl(210, 40%, 98%)',
+                        card: 'hsl(220, 18%, 12%)',
+                        'card-foreground': 'hsl(210, 40%, 98%)',
+                        primary: 'hsl(190, 100%, 50%)',
+                        'primary-foreground': 'hsl(220, 20%, 8%)',
+                        secondary: 'hsl(280, 70%, 60%)',
+                        'secondary-foreground': 'hsl(210, 40%, 98%)',
+                        muted: 'hsl(220, 15%, 20%)',
+                        'muted-foreground': 'hsl(215, 20%, 65%)',
+                        success: 'hsl(160, 84%, 50%)',
+                        warning: 'hsl(38, 92%, 50%)',
+                        destructive: 'hsl(0, 84%, 60%)',
+                        border: 'hsl(220, 15%, 25%)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '1', boxShadow: '0 0 20px hsl(190 100% 50% / 0.4)' },
+                            '50%': { opacity: '0.8', boxShadow: '0 0 40px hsl(190 100% 50% / 0.6)' },
+                        },
+                        'scan': {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '50%': { transform: 'translateX(10px)' },
+                        },
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'shimmer': {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        },
+                        'spin-slow': {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'scan': 'scan 2s ease-in-out infinite',
+                        'fade-in-up': 'fade-in-up 0.5s ease-out',
+                        'shimmer': 'shimmer 3s linear infinite',
+                        'spin-slow': 'spin-slow 3s linear infinite',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: hsl(220, 20%, 8%);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: hsl(220, 15%, 20%);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: hsl(190, 100%, 50%);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: hsl(190, 100%, 40%);
+        }
+
+        .glow-primary {
+            box-shadow: 0 0 30px hsl(190 100% 50% / 0.3);
+        }
+        
+        .glow-secondary {
+            box-shadow: 0 0 30px hsl(280 70% 60% / 0.3);
+        }
+        
+        .glow-destructive {
+            box-shadow: 0 0 30px hsl(0 84% 60% / 0.3);
+        }
+        
+        .glow-warning {
+            box-shadow: 0 0 30px hsl(38 92% 50% / 0.3);
+        }
+        
+        .glow-success {
+            box-shadow: 0 0 30px hsl(160 84% 50% / 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, hsl(190, 100%, 50%), hsl(280, 70%, 60%));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-gradient {
+            background: linear-gradient(135deg, hsl(220, 18%, 12%), hsl(220, 18%, 14%));
+        }
+
+        .step-card {
+            animation: fade-in-up 0.5s ease-out forwards;
+            animation-fill-mode: backwards;
+        }
+
+        @keyframes ellipsis {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .loader::after {
+            content: '.';
+            animation: ellipsis 1.4s infinite;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground min-h-screen p-6">
+
+    <div class="w-full max-w-[1600px] mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold gradient-text mb-3 tracking-tight">
+                L1 SOC Agent
+            </h1>
+            <p class="text-muted-foreground font-mono text-sm">Autonomous Security Analysis Platform</p>
+        </div>
+
+        <!-- Agent Avatar and Controls -->
+        <div class="card-gradient rounded-2xl border border-border p-8 mb-8 shadow-xl">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- Agent Avatar -->
+                <div class="flex flex-col items-center gap-4">
+                    <div class="relative">
+                        <!-- Outer ring -->
+                        <div id="agent-ring" class="absolute inset-0 rounded-full border-2 border-border"></div>
+                        
+                        <!-- Background circle -->
+                        <div id="agent-circle" class="w-32 h-32 rounded-full bg-card border border-border flex items-center justify-center transition-all duration-500">
+                            <!-- Icon SVG -->
+                            <svg id="agent-icon" class="w-16 h-16 text-muted-foreground transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+
+                        <!-- Activity indicators -->
+                        <div id="activity-indicators" class="absolute -top-2 -right-2 flex gap-1 opacity-0 transition-opacity duration-300">
+                            <div class="indicator w-2 h-2 rounded-full bg-primary"></div>
+                            <div class="indicator w-2 h-2 rounded-full bg-primary opacity-30"></div>
+                            <div class="indicator w-2 h-2 rounded-full bg-primary opacity-30"></div>
+                        </div>
+                    </div>
+
+                    <!-- Status label -->
+                    <div class="flex items-center gap-2">
+                        <div id="status-dot" class="w-2 h-2 rounded-full bg-muted"></div>
+                        <span id="status-label" class="text-sm font-mono text-muted-foreground uppercase tracking-wider">READY</span>
+                    </div>
+                </div>
+                
+                <div class="flex-1 text-center md:text-left">
+                    <p id="status-text" class="text-lg text-card-foreground mb-4 font-medium">Ready to analyze security alerts</p>
+                    <button id="start-button" class="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-8 rounded-lg text-lg transition-all duration-300 glow-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span id="button-text">Initiate Random Alert</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Steps -->
+        <div id="analysis-container" class="bg-card/50 backdrop-blur-sm rounded-2xl border border-border p-6 hidden">
+            <h2 class="text-xl font-semibold text-card-foreground mb-6 flex items-center gap-2">
+                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944L12 22l9-1.056v-9.447z"></path>
+                </svg>
+                Analysis Pipeline
+            </h2>
+            
+            <div id="steps-container" class="flex gap-6 overflow-x-auto pb-4 custom-scrollbar">
+                <!-- Steps will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const startButton = document.getElementById('start-button');
+        const statusText = document.getElementById('status-text');
+        const buttonText = document.getElementById('button-text');
+        const stepsContainer = document.getElementById('steps-container');
+        const analysisContainer = document.getElementById('analysis-container');
+        const agentRing = document.getElementById('agent-ring');
+        const agentCircle = document.getElementById('agent-circle');
+        const agentIcon = document.getElementById('agent-icon');
+        const activityIndicators = document.getElementById('activity-indicators');
+        const statusDot = document.getElementById('status-dot');
+        const statusLabel = document.getElementById('status-label');
+
+        let indicatorInterval;
+        let indicatorCount = 0;
+
+        const ICONS = {
+            alert: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            validate: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            brain: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>`,
+            search: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>`,
+            database: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7l8-4 8 4"></path></svg>`,
+            zap: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
+            play: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>`,
+        };
+
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        function setAgentState(state) {
+            const configs = {
+                idle: {
+                    ringClass: 'border-border',
+                    circleClass: '',
+                    iconClass: 'text-muted-foreground',
+                    iconPath: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+                    dotClass: 'bg-muted',
+                    label: 'READY',
+                    showIndicators: false,
+                },
+                thinking: {
+                    ringClass: 'border-primary animate-pulse-glow',
+                    circleClass: 'glow-primary',
+                    iconClass: 'text-primary animate-scan',
+                    iconPath: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+                    dotClass: 'bg-primary animate-pulse',
+                    label: 'ANALYZING',
+                    showIndicators: true,
+                },
+                deciding: {
+                    ringClass: 'border-secondary animate-pulse-glow',
+                    circleClass: 'glow-secondary',
+                    iconClass: 'text-secondary',
+                    iconPath: 'M13 10V3L4 14h7v7l9-11h-7z',
+                    dotClass: 'bg-secondary animate-pulse',
+                    label: 'DECIDING',
+                    showIndicators: true,
+                },
+                processing: {
+                    ringClass: 'border-success animate-pulse-glow',
+                    circleClass: 'glow-success',
+                    iconClass: 'text-success animate-spin-slow',
+                    iconPath: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+                    dotClass: 'bg-success animate-pulse',
+                    label: 'PROCESSING',
+                    showIndicators: true,
+                },
+            };
+
+            const config = configs[state];
+            agentRing.className = `absolute inset-0 rounded-full border-2 ${config.ringClass}`;
+            agentCircle.className = `w-32 h-32 rounded-full bg-card border border-border flex items-center justify-center transition-all duration-500 ${config.circleClass}`;
+            agentIcon.className = `w-16 h-16 transition-all duration-300 ${config.iconClass}`;
+            agentIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${config.iconPath}"></path>`;
+            statusDot.className = `w-2 h-2 rounded-full ${config.dotClass}`;
+            statusLabel.textContent = config.label;
+
+            if (config.showIndicators) {
+                activityIndicators.classList.remove('opacity-0');
+                startIndicatorAnimation();
+            } else {
+                activityIndicators.classList.add('opacity-0');
+                stopIndicatorAnimation();
+            }
+        }
+
+        function startIndicatorAnimation() {
+            stopIndicatorAnimation();
+            const indicators = activityIndicators.querySelectorAll('.indicator');
+            indicatorInterval = setInterval(() => {
+                indicators.forEach((ind, i) => {
+                    ind.style.opacity = i === (indicatorCount % 3) ? '1' : '0.3';
+                });
+                indicatorCount++;
+            }, 500);
+        }
+
+        function stopIndicatorAnimation() {
+            if (indicatorInterval) {
+                clearInterval(indicatorInterval);
+                indicatorInterval = null;
+            }
+        }
+
+        function createStepCard(stepNumber, title, icon, status = 'pending') {
+            const statusConfigs = {
+                pending: { border: 'border-border', bg: '', badge: 'bg-muted text-muted-foreground border-border' },
+                processing: { border: 'border-primary', bg: 'glow-primary', badge: 'bg-primary/20 text-primary border-primary' },
+                complete: { border: 'border-success', bg: '', badge: 'bg-success/20 text-success border-success' },
+                error: { border: 'border-destructive', bg: '', badge: 'bg-destructive/20 text-destructive border-destructive' },
+            };
+
+            const config = statusConfigs[status];
+            
+            const card = document.createElement('div');
+            card.className = `step-card relative bg-card rounded-lg border-2 ${config.border} ${config.bg} transition-all duration-500 overflow-hidden`;
+            card.style.cssText = 'min-width: 380px; max-width: 420px; animation-delay: ' + (stepNumber * 100) + 'ms';
+            
+            card.innerHTML = `
+                <!-- Step number badge -->
+                <div class="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold text-primary-foreground glow-primary">
+                    ${stepNumber}
+                </div>
+
+                <!-- Header -->
+                <div class="p-4 border-b border-border">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 rounded-lg ${config.badge} border">
+                            ${icon}
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-card-foreground">${title}</h3>
+                            <span class="step-status text-xs font-mono uppercase ${status === 'processing' ? 'animate-pulse' : ''}">${status}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="step-content p-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+                    <div class="flex items-center justify-center h-20 text-muted-foreground">
+                        <p class="text-sm loader">Processing</p>
+                    </div>
+                </div>
+
+                <!-- Processing indicator -->
+                ${status === 'processing' ? `
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-muted overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-primary via-secondary to-primary animate-shimmer" style="background-size: 200% 100%;"></div>
+                </div>
+                ` : ''}
+            `;
+
+            return card;
+        }
+
+        function updateStepCard(card, status, result) {
+            const statusConfigs = {
+                processing: { border: 'border-primary', bg: 'glow-primary', badge: 'bg-primary/20 text-primary border-primary' },
+                complete: { border: 'border-success', bg: '', badge: 'bg-success/20 text-success border-success' },
+                error: { border: 'border-destructive', bg: '', badge: 'bg-destructive/20 text-destructive border-destructive' },
+            };
+
+            const config = statusConfigs[status];
+            card.className = `step-card relative bg-card rounded-lg border-2 ${config.border} ${config.bg} transition-all duration-500 overflow-hidden`;
+            card.style.cssText = 'min-width: 380px; max-width: 420px';
+            
+            const statusSpan = card.querySelector('.step-status');
+            if (statusSpan) {
+                statusSpan.textContent = status;
+                statusSpan.className = `step-status text-xs font-mono uppercase ${status === 'processing' ? 'animate-pulse' : ''}`;
+            }
+
+            const badge = card.querySelector('.p-2');
+            if (badge) {
+                badge.className = `p-2 rounded-lg ${config.badge} border`;
+            }
+
+            // Remove existing progress bar
+            const existingBar = card.querySelector('.absolute.bottom-0');
+            if (existingBar) existingBar.remove();
+
+            // Add progress bar if processing
+            if (status === 'processing') {
+                const bar = document.createElement('div');
+                bar.className = 'absolute bottom-0 left-0 right-0 h-1 bg-muted overflow-hidden';
+                bar.innerHTML = '<div class="h-full bg-gradient-to-r from-primary via-secondary to-primary animate-shimmer" style="background-size: 200% 100%;"></div>';
+                card.appendChild(bar);
+            }
+
+            // Update content
+            const content = card.querySelector('.step-content');
+            if (content && result) {
+                content.innerHTML = formatResult(result);
+            }
+        }
+
+        function formatResult(result) {
+            if (result.final_severity) {
+                return formatVerdict(result);
+            } else if (Array.isArray(result)) {
+                return formatActions(result);
+            } else {
+                return `<div class="bg-background/50 rounded-md p-3 border border-border overflow-x-auto">
+                    <pre class="text-xs font-mono text-card-foreground whitespace-pre-wrap break-words">${JSON.stringify(result, null, 2)}</pre>
+                </div>`;
+            }
+        }
+
+        function formatVerdict(verdict) {
+            const severityConfigs = {
+                Critical: { icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', bg: 'bg-destructive/20', text: 'text-destructive', border: 'border-destructive', glow: 'glow-destructive' },
+                High: { icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', bg: 'bg-warning/20', text: 'text-warning', border: 'border-warning', glow: 'glow-warning' },
+                Medium: { icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', bg: 'bg-primary/20', text: 'text-primary', border: 'border-primary', glow: 'glow-primary' },
+                Low: { icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', bg: 'bg-success/20', text: 'text-success', border: 'border-success', glow: 'glow-success' },
+            };
+
+            const config = severityConfigs[verdict.final_severity] || severityConfigs.Low;
+
+            return `
+                <div class="space-y-4">
+                    <div class="p-4 rounded-lg border-2 ${config.border} ${config.bg} ${config.glow} animate-fade-in-up">
+                        <div class="flex items-center gap-3 mb-2">
+                            <svg class="w-6 h-6 ${config.text}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${config.icon}"></path>
+                            </svg>
+                            <span class="text-xs font-mono text-muted-foreground uppercase">Severity Level</span>
+                        </div>
+                        <p class="text-3xl font-bold ${config.text} tracking-tight">${verdict.final_severity}</p>
+                    </div>
+
+                    <div class="p-4 rounded-lg bg-card border border-border">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944L12 22l9-1.056v-9.447z"></path>
+                            </svg>
+                            <span class="text-xs font-mono text-muted-foreground uppercase">Attack Category</span>
+                        </div>
+                        <p class="text-lg font-semibold text-card-foreground">${verdict.attack_category || 'N/A'}</p>
+                    </div>
+
+                    <div class="p-4 rounded-lg bg-muted/30 border border-border">
+                        <span class="text-xs font-mono text-muted-foreground uppercase mb-2 block">AI Analyst Summary</span>
+                        <p class="text-sm text-card-foreground italic leading-relaxed">"${verdict.analyst_summary || verdict.summary || 'Analysis complete'}"</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatActions(actions) {
+            if (!actions || actions.length === 0) {
+                return '<div class="flex items-center justify-center h-32 text-muted-foreground"><p class="text-sm">No automated actions required</p></div>';
+            }
+
+            return `<div class="space-y-3">
+                ${actions.map((item, index) => {
+                    const actionType = item.action.toLowerCase();
+                    let colorClass = 'primary';
+                    if (actionType.includes('block')) colorClass = 'destructive';
+                    else if (actionType.includes('isolate')) colorClass = 'warning';
+
+                    const colors = {
+                        destructive: { bg: 'bg-destructive/10', border: 'border-destructive', text: 'text-destructive' },
+                        warning: { bg: 'bg-warning/10', border: 'border-warning', text: 'text-warning' },
+                        primary: { bg: 'bg-primary/10', border: 'border-primary', text: 'text-primary' },
+                    };
+
+                    const config = colors[colorClass];
+
+                    return `
+                        <div class="p-4 rounded-lg border-2 animate-fade-in-up ${config.bg} ${config.border}" style="animation-delay: ${index * 100}ms">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 mt-1 ${config.text}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944L12 22l9-1.056v-9.447z"></path>
+                                </svg>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm mb-1 uppercase tracking-wide ${config.text}">${item.action.replace(/_/g, ' ')}</h4>
+                                    <code class="text-sm font-mono text-card-foreground bg-background/50 px-2 py-1 rounded">${item.target}</code>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>`;
+        }
+
+        // Flask API integration
+        async function callFlaskAPI(endpoint, method = 'POST') {
+            try {
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                throw error;
+            }
+        }
+
+        async function runAnalysis() {
+            startButton.disabled = true;
+            buttonText.textContent = 'Analysis in Progress...';
+            stepsContainer.innerHTML = '';
+            analysisContainer.classList.remove('hidden');
+            
+            setAgentState('processing');
+            statusText.textContent = 'Initializing analysis pipeline...';
+
+            const stepDefinitions = [
+                { name: 'start', title: 'Initial Alert', icon: ICONS.alert, state: 'thinking', endpoint: '/start_analysis' },
+                { name: 'validate', title: 'Context Validation', icon: ICONS.validate, state: 'thinking', endpoint: '/run_step/validate' },
+                { name: 'extract_iocs', title: 'IOC Extraction', icon: ICONS.brain, state: 'thinking', endpoint: '/run_step/extract_iocs' },
+                { name: 'check_reputation', title: 'Reputation Check', icon: ICONS.search, state: 'thinking', endpoint: '/run_step/check_reputation' },
+                { name: 'enrich_context', title: 'Context Enrichment', icon: ICONS.database, state: 'thinking', endpoint: '/run_step/enrich_context' },
+                { name: 'decide', title: 'Final Verdict', icon: ICONS.zap, state: 'deciding', endpoint: '/run_step/decide' },
+                { name: 'execute', title: 'Automated Response', icon: ICONS.play, state: 'processing', endpoint: '/run_step/execute' },
+            ];
+
+            const cards = [];
+            for (let i = 0; i < stepDefinitions.length; i++) {
+                const def = stepDefinitions[i];
+                const card = createStepCard(i + 1, def.title, def.icon, 'pending');
+                stepsContainer.appendChild(card);
+                cards.push(card);
+                await sleep(100);
+            }
+
+            for (let i = 0; i < stepDefinitions.length; i++) {
+                const def = stepDefinitions[i];
+                setAgentState(def.state);
+                statusText.textContent = `${def.title}...`;
+                updateStepCard(cards[i], 'processing');
+                
+                try {
+                    const result = await callFlaskAPI(def.endpoint);
+                    
+                    // Handle different response formats
+                    let displayResult = result;
+                    
+                    // For the decide step, extract the final_verdict
+                    if (def.name === 'decide' && result.decide) {
+                        displayResult = result.decide;
+                    }
+                    // For the execute step, extract the automated_actions
+                    else if (def.name === 'execute' && result.execute) {
+                        displayResult = result.execute;
+                    }
+                    // For other steps, just use the nested result if it exists
+                    else if (result[def.name]) {
+                        displayResult = result[def.name];
+                    }
+                    
+                    updateStepCard(cards[i], 'complete', displayResult);
+                    stepsContainer.scrollLeft = stepsContainer.scrollWidth;
+                } catch (error) {
+                    console.error(`Error in step ${def.name}:`, error);
+                    updateStepCard(cards[i], 'error', { error: error.message });
+                    statusText.textContent = `Analysis failed at ${def.title}. Please check logs.`;
+                    setAgentState('idle');
+                    startButton.disabled = false;
+                    buttonText.textContent = 'Initiate Random Alert';
+                    return;
+                }
+            }
+
+            setAgentState('idle');
+            statusText.textContent = 'Analysis complete. All automated actions executed.';
+            startButton.disabled = false;
+            buttonText.textContent = 'Initiate Random Alert';
+        }
+
+        startButton.addEventListener('click', runAnalysis);
+    </script>
+</body>
+</html>
