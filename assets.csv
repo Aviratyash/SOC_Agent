@@ -1,0 +1,7 @@
+hostname,ip_address,mac_address,os,owner_name,owner_email,department,location,asset_type,asset_criticality,data_sensitivity
+WEBSRV01-PROD,10.1.5.25,0A:1B:2C:3D:4E:5F,Windows Server 2022,IT Admin,it.admin@example.com,IT-Infrastructure,Jaipur-DC,VM,High,Confidential
+DOMAIN-CONTROLLER-01,10.1.1.5,1A:2B:3C:4D:5E:6F,Windows Server 2019,IT Admin,it.admin@example.com,IT-Infrastructure,Jaipur-DC,VM,Critical,Confidential
+JAIPUR-LAP-112,192.168.1.102,2A:3B:4C:5D:6E:7F,Windows 11,Anjali Verma,a.verma@example.com,Marketing,Jaipur-HO,Laptop,Medium,Internal
+FINANCE-PC-05,192.168.1.115,3A:4B:5C:6D:7E:8F,Windows 11,Manish Gupta,m.gupta@example.com,Finance,Jaipur-HO,Desktop,High,Highly Confidential
+MUMBAI-LAP-042,192.168.2.55,4A:5B:6C:7D:8E:9F,MacOS,Sunil Singh,s.singh@example.com,Sales,Mumbai-Branch,Laptop,Medium,Internal
+DEV-SERVER-03,10.1.10.80,5A:6B:7C:8D:9E:0F,Ubuntu 22.04,Dev Team,dev.team@example.com,Engineering,AWS-ap-south-1,VM,Medium,Internal

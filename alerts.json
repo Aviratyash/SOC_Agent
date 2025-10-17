@@ -1,0 +1,770 @@
+[
+  {
+    "timestamp": "2025-10-13T20:55:22.145+0530",
+    "rule": {
+      "level": 10,
+      "description": "Multiple Windows Failed Logins",
+      "id": "18152",
+      "groups": ["authentication", "authentication_failures"],
+      "mitre": {
+        "technique": ["T1110.001"],
+        "tactic": ["Credential Access"]
+      }
+    },
+    "agent": {
+      "id": "003",
+      "name": "DBSRV02-PROD",
+      "ip": "10.1.5.30"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697220322.145001",
+    "full_log": "Audit Failure,4625,An account failed to log on.,Subject: Security ID: S-1-0-0 Account Name: - Account Domain: - Logon ID: 0x0,Logon Type: 3,Account For Which Logon Failed: Security ID: S-1-0-0 Account Name: admin Account Domain: PROD,Failure Information: Failure Reason: Unknown user name or bad password. Status: 0xc000006d Sub Status: 0xc000006a,Network Information: Workstation Name: DBSRV02-PROD Source Network Address: 45.142.212.61 Source Port: 22341",
+    "decoder": {
+      "name": "windows_eventchannel"
+    },
+    "data": {
+      "win": {
+        "system": {
+          "eventID": "4625"
+        },
+        "eventdata": {
+          "targetUserName": "admin",
+          "ipAddress": "45.142.212.61"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T20:56:45.234+0530",
+    "rule": {
+      "level": 12,
+      "description": "ET MALWARE Ransomware Communication",
+      "id": "2029340",
+      "groups": ["ids", "malware", "suricata"],
+      "mitre": {
+        "technique": ["T1486"],
+        "tactic": ["Impact"]
+      }
+    },
+    "agent": {
+      "id": "007",
+      "name": "HR-LAPTOP-23",
+      "ip": "192.168.1.107"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697220405.234567",
+    "full_log": "10/13/2025-20:56:45.234 [**] [1:2029340:2] ET MALWARE Ransomware Communication [**] [Classification: A Network Trojan was detected] [Priority: 1] {TCP} 192.168.1.107:51234 -> 198.51.100.45:8080",
+    "decoder": {
+      "name": "suricata"
+    },
+    "data": {
+      "srcip": "192.168.1.107",
+      "dstip": "198.51.100.45",
+      "dstport": "8080",
+      "proto": "TCP"
+    },
+    "location": "Suricata-EVE"
+  },
+  {
+    "timestamp": "2025-10-13T20:58:12.567+0530",
+    "rule": {
+      "level": 11,
+      "description": "Suspicious Registry Modification",
+      "id": "61605",
+      "groups": ["sysmon", "registry"],
+      "mitre": {
+        "technique": ["T1112"],
+        "tactic": ["Defense Evasion"]
+      }
+    },
+    "agent": {
+      "id": "012",
+      "name": "SALES-PC-08",
+      "ip": "192.168.1.120"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697220492.567890",
+    "full_log": "RegistryEvent: UtcTime: 2025-10-13 20:58:12.000, EventType: SetValue, TargetObject: HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\SecurityUpdate, Details: C:\\Users\\Public\\svchost.exe",
+    "decoder": {
+      "name": "sysmon_event_13"
+    },
+    "data": {
+      "win": {
+        "eventdata": {
+          "user": "DOMAIN\\s.patel",
+          "targetObject": "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\SecurityUpdate"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:00:33.789+0530",
+    "rule": {
+      "level": 8,
+      "description": "SSH Brute Force Attempt",
+      "id": "5712",
+      "groups": ["sshd", "authentication_failed"],
+      "mitre": {
+        "technique": ["T1110"],
+        "tactic": ["Credential Access"]
+      }
+    },
+    "agent": {
+      "id": "015",
+      "name": "LINUX-WEB-01",
+      "ip": "10.1.5.45"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697220633.789012",
+    "full_log": "Oct 13 21:00:33 LINUX-WEB-01 sshd[12345]: Failed password for root from 103.145.12.78 port 45678 ssh2",
+    "decoder": {
+      "name": "sshd"
+    },
+    "data": {
+      "srcip": "103.145.12.78",
+      "srcport": "45678",
+      "dstuser": "root"
+    },
+    "location": "/var/log/auth.log"
+  },
+  {
+    "timestamp": "2025-10-13T21:02:18.456+0530",
+    "rule": {
+      "level": 13,
+      "description": "File Integrity Monitoring - Critical File Modified",
+      "id": "550",
+      "groups": ["ossec", "syscheck"],
+      "mitre": {
+        "technique": ["T1565.001"],
+        "tactic": ["Impact"]
+      }
+    },
+    "agent": {
+      "id": "002",
+      "name": "WEBSRV01-PROD",
+      "ip": "10.1.5.25"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697220738.456789",
+    "full_log": "File '/etc/passwd' modified. Mode: scheduled",
+    "decoder": {
+      "name": "syscheck_integrity_changed"
+    },
+    "data": {
+      "path": "/etc/passwd",
+      "mode": "scheduled",
+      "changed_attributes": ["size", "md5", "sha1"]
+    },
+    "location": "syscheck"
+  },
+  {
+    "timestamp": "2025-10-13T21:04:55.123+0530",
+    "rule": {
+      "level": 12,
+      "description": "Potentially Malicious URL Clicked (Phishing)",
+      "id": "86603",
+      "groups": ["web", "accesslog", "attack"],
+      "mitre": {
+        "technique": ["T1566.002"],
+        "tactic": ["Initial Access"]
+      }
+    },
+    "agent": {
+      "id": "008",
+      "name": "MARKETING-LAP-15",
+      "ip": "192.168.1.108"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697220895.123456",
+    "full_log": "1697220895.123 192.168.1.108 GET /login 200 2456 http://microsoft-account-verify.tk/login \"Mozilla/5.0...\"",
+    "decoder": {
+      "name": "web-accesslog"
+    },
+    "data": {
+      "protocol": "GET",
+      "srcip": "192.168.1.108",
+      "url": "http://microsoft-account-verify.tk/login",
+      "srcuser": "k.singh",
+      "response_code": "200"
+    },
+    "location": "var/log/proxy/access.log"
+  },
+  {
+    "timestamp": "2025-10-13T21:06:22.789+0530",
+    "rule": {
+      "level": 10,
+      "description": "Windows Defender Malware Detected",
+      "id": "92041",
+      "groups": ["windows_defender", "malware"],
+      "mitre": {
+        "technique": ["T1204.002"],
+        "tactic": ["Execution"]
+      }
+    },
+    "agent": {
+      "id": "011",
+      "name": "IT-SUPPORT-PC",
+      "ip": "192.168.1.118"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697220982.789012",
+    "full_log": "Windows Defender detected: Trojan:Win32/Emotet.A in C:\\Users\\n.reddy\\Downloads\\invoice_2025.doc",
+    "decoder": {
+      "name": "windows_defender"
+    },
+    "data": {
+      "win": {
+        "eventdata": {
+          "threatName": "Trojan:Win32/Emotet.A",
+          "path": "C:\\Users\\n.reddy\\Downloads\\invoice_2025.doc",
+          "user": "n.reddy"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:08:44.234+0530",
+    "rule": {
+      "level": 9,
+      "description": "Sysmon - Suspicious Process Creation",
+      "id": "61602",
+      "groups": ["sysmon", "execution"],
+      "mitre": {
+        "technique": ["T1059.003"],
+        "tactic": ["Execution"]
+      }
+    },
+    "agent": {
+      "id": "014",
+      "name": "ACCOUNTING-PC-12",
+      "ip": "192.168.1.125"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221124.234567",
+    "full_log": "ProcessCreate: UtcTime: 2025-10-13 21:08:44.000, Image: C:\\Windows\\System32\\cmd.exe, CommandLine: cmd.exe /c whoami && ipconfig /all",
+    "decoder": {
+      "name": "sysmon_event_1"
+    },
+    "data": {
+      "win": {
+        "eventdata": {
+          "user": "DOMAIN\\p.joshi",
+          "commandLine": "cmd.exe /c whoami && ipconfig /all",
+          "parentImage": "C:\\Windows\\explorer.exe"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:10:15.567+0530",
+    "rule": {
+      "level": 11,
+      "description": "User Account Deleted",
+      "id": "80793",
+      "groups": ["iam", "account-management"],
+      "mitre": {
+        "technique": ["T1531"],
+        "tactic": ["Impact"]
+      }
+    },
+    "agent": {
+      "id": "001",
+      "name": "DOMAIN-CONTROLLER-01",
+      "ip": "10.1.1.5"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221215.567890",
+    "full_log": "A user account was deleted. Subject: administrator, Target Account: temp_contractor",
+    "decoder": {
+      "name": "windows_eventchannel"
+    },
+    "data": {
+      "win": {
+        "system": {
+          "eventID": "4726"
+        },
+        "eventdata": {
+          "subjectUserName": "administrator",
+          "targetUserName": "temp_contractor"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:12:38.890+0530",
+    "rule": {
+      "level": 12,
+      "description": "ET EXPLOIT SQL Injection Attempt",
+      "id": "2100498",
+      "groups": ["ids", "web_attack", "suricata"],
+      "mitre": {
+        "technique": ["T1190"],
+        "tactic": ["Initial Access"]
+      }
+    },
+    "agent": {
+      "id": "002",
+      "name": "WEBSRV01-PROD",
+      "ip": "10.1.5.25"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221358.890123",
+    "full_log": "10/13/2025-21:12:38.890 [**] [1:2100498:7] ET EXPLOIT SQL Injection Attempt [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 89.248.172.16:54321 -> 10.1.5.25:80",
+    "decoder": {
+      "name": "suricata"
+    },
+    "data": {
+      "srcip": "89.248.172.16",
+      "dstip": "10.1.5.25",
+      "dstport": "80",
+      "proto": "TCP"
+    },
+    "location": "Suricata-EVE"
+  },
+  {
+    "timestamp": "2025-10-13T21:14:20.456+0530",
+    "rule": {
+      "level": 10,
+      "description": "Multiple Windows Failed Logins",
+      "id": "18152",
+      "groups": ["authentication", "authentication_failures"],
+      "mitre": {
+        "technique": ["T1110.001"],
+        "tactic": ["Credential Access"]
+      }
+    },
+    "agent": {
+      "id": "009",
+      "name": "REMOTE-VPN-GW",
+      "ip": "10.1.2.10"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221460.456789",
+    "full_log": "Audit Failure,4625,An account failed to log on.,Account Name: j.kumar Account Domain: PROD,Source Network Address: 176.123.45.89",
+    "decoder": {
+      "name": "windows_eventchannel"
+    },
+    "data": {
+      "win": {
+        "system": {
+          "eventID": "4625"
+        },
+        "eventdata": {
+          "targetUserName": "j.kumar",
+          "ipAddress": "176.123.45.89"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:16:05.123+0530",
+    "rule": {
+      "level": 8,
+      "description": "Unauthorized Port Scan Detected",
+      "id": "40101",
+      "groups": ["firewall", "reconnaissance"],
+      "mitre": {
+        "technique": ["T1046"],
+        "tactic": ["Discovery"]
+      }
+    },
+    "agent": {
+      "id": "020",
+      "name": "FIREWALL-01",
+      "ip": "10.1.1.1"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221565.123456",
+    "full_log": "Port scan detected from 94.142.244.56 targeting 10.1.5.25 ports 1-65535",
+    "decoder": {
+      "name": "firewall"
+    },
+    "data": {
+      "srcip": "94.142.244.56",
+      "dstip": "10.1.5.25",
+      "action": "blocked"
+    },
+    "location": "/var/log/firewall.log"
+  },
+  {
+    "timestamp": "2025-10-13T21:18:33.789+0530",
+    "rule": {
+      "level": 12,
+      "description": "Mimikatz Credential Dumping Activity",
+      "id": "61615",
+      "groups": ["sysmon", "credential_access"],
+      "mitre": {
+        "technique": ["T1003.001"],
+        "tactic": ["Credential Access"]
+      }
+    },
+    "agent": {
+      "id": "016",
+      "name": "DEVOPS-SERVER-03",
+      "ip": "192.168.1.130"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221713.789012",
+    "full_log": "ProcessCreate: Image: C:\\Temp\\m64.exe, CommandLine: m64.exe sekurlsa::logonpasswords",
+    "decoder": {
+      "name": "sysmon_event_1"
+    },
+    "data": {
+      "win": {
+        "eventdata": {
+          "user": "DOMAIN\\admin_temp",
+          "commandLine": "m64.exe sekurlsa::logonpasswords",
+          "image": "C:\\Temp\\m64.exe"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:20:47.234+0530",
+    "rule": {
+      "level": 11,
+      "description": "Scheduled Task Created",
+      "id": "80795",
+      "groups": ["windows", "persistence"],
+      "mitre": {
+        "technique": ["T1053.005"],
+        "tactic": ["Persistence"]
+      }
+    },
+    "agent": {
+      "id": "013",
+      "name": "LEGAL-PC-09",
+      "ip": "192.168.1.122"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221847.234567",
+    "full_log": "A scheduled task was created. Task Name: WindowsUpdateCheck, Action: C:\\ProgramData\\updater.exe",
+    "decoder": {
+      "name": "windows_eventchannel"
+    },
+    "data": {
+      "win": {
+        "system": {
+          "eventID": "4698"
+        },
+        "eventdata": {
+          "subjectUserName": "v.nair",
+          "taskName": "\\WindowsUpdateCheck"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:22:15.567+0530",
+    "rule": {
+      "level": 12,
+      "description": "ET TROJAN CobaltStrike Beacon",
+      "id": "2034648",
+      "groups": ["ids", "trojan", "suricata"],
+      "mitre": {
+        "technique": ["T1071.001"],
+        "tactic": ["Command and Control"]
+      }
+    },
+    "agent": {
+      "id": "017",
+      "name": "RESEARCH-LAB-PC",
+      "ip": "192.168.1.135"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697221935.567890",
+    "full_log": "10/13/2025-21:22:15.567 [**] [1:2034648:1] ET TROJAN CobaltStrike Beacon [**] [Priority: 1] {TCP} 192.168.1.135:49234 -> 162.159.200.123:443",
+    "decoder": {
+      "name": "suricata"
+    },
+    "data": {
+      "srcip": "192.168.1.135",
+      "dstip": "162.159.200.123",
+      "dstport": "443",
+      "proto": "TCP"
+    },
+    "location": "Suricata-EVE"
+  },
+  {
+    "timestamp": "2025-10-13T21:24:38.890+0530",
+    "rule": {
+      "level": 9,
+      "description": "Suspicious WMI Execution",
+      "id": "61608",
+      "groups": ["sysmon", "execution"],
+      "mitre": {
+        "technique": ["T1047"],
+        "tactic": ["Execution"]
+      }
+    },
+    "agent": {
+      "id": "019",
+      "name": "LOGISTICS-PC-18",
+      "ip": "192.168.1.140"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697222078.890123",
+    "full_log": "ProcessCreate: Image: C:\\Windows\\System32\\wbem\\WMIC.exe, CommandLine: wmic process call create calc.exe",
+    "decoder": {
+      "name": "sysmon_event_1"
+    },
+    "data": {
+      "win": {
+        "eventdata": {
+          "user": "DOMAIN\\r.desai",
+          "commandLine": "wmic process call create calc.exe"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:26:52.456+0530",
+    "rule": {
+      "level": 10,
+      "description": "Firewall Rule Modified",
+      "id": "80798",
+      "groups": ["windows", "firewall"],
+      "mitre": {
+        "technique": ["T1562.004"],
+        "tactic": ["Defense Evasion"]
+      }
+    },
+    "agent": {
+      "id": "021",
+      "name": "PROD-APP-SERVER",
+      "ip": "10.1.5.50"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697222212.456789",
+    "full_log": "Windows Firewall rule modified: Rule Name: Allow All Inbound, Action: Allow, Direction: Inbound",
+    "decoder": {
+      "name": "windows_eventchannel"
+    },
+    "data": {
+      "win": {
+        "system": {
+          "eventID": "2004"
+        },
+        "eventdata": {
+          "ruleName": "Allow All Inbound",
+          "modifiedBy": "SYSTEM"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:28:20.123+0530",
+    "rule": {
+      "level": 8,
+      "description": "MySQL Authentication Failure",
+      "id": "35502",
+      "groups": ["mysql", "authentication_failed"],
+      "mitre": {
+        "technique": ["T1110"],
+        "tactic": ["Credential Access"]
+      }
+    },
+    "agent": {
+      "id": "003",
+      "name": "DBSRV02-PROD",
+      "ip": "10.1.5.30"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697222300.123456",
+    "full_log": "Access denied for user 'root'@'45.89.123.45' (using password: YES)",
+    "decoder": {
+      "name": "mysql"
+    },
+    "data": {
+      "srcip": "45.89.123.45",
+      "dstuser": "root"
+    },
+    "location": "/var/log/mysql/error.log"
+  },
+  {
+    "timestamp": "2025-10-13T21:30:45.789+0530",
+    "rule": {
+      "level": 13,
+      "description": "Potential Data Exfiltration",
+      "id": "86700",
+      "groups": ["web", "data_loss"],
+      "mitre": {
+        "technique": ["T1048.003"],
+        "tactic": ["Exfiltration"]
+      }
+    },
+    "agent": {
+      "id": "002",
+      "name": "WEBSRV01-PROD",
+      "ip": "10.1.5.25"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697222445.789012",
+    "full_log": "Large data transfer detected: 2.5GB uploaded to external server",
+    "decoder": {
+      "name": "web-accesslog"
+    },
+    "data": {
+      "protocol": "POST",
+      "srcip": "10.1.5.25",
+      "dstip": "185.199.108.153",
+      "bytes": "2684354560",
+      "srcuser": "api_service"
+    },
+    "location": "var/log/proxy/access.log"
+  },
+  {
+    "timestamp": "2025-10-13T21:32:18.234+0530",
+    "rule": {
+      "level": 11,
+      "description": "Suspicious DLL Loaded",
+      "id": "61607",
+      "groups": ["sysmon", "persistence"],
+      "mitre": {
+        "technique": ["T1574.002"],
+        "tactic": ["Persistence"]
+      }
+    },
+    "agent": {
+      "id": "022",
+      "name": "DESIGN-WORKSTATION",
+      "ip": "192.168.1.145"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697222538.234567",
+    "full_log": "ImageLoad: Image: C:\\Windows\\System32\\svchost.exe, ImageLoaded: C:\\Users\\Public\\Libraries\\security.dll",
+    "decoder": {
+      "name": "sysmon_event_7"
+    },
+    "data": {
+      "win": {
+        "eventdata": {
+          "imageLoaded": "C:\\Users\\Public\\Libraries\\security.dll",
+          "user": "NT AUTHORITY\\SYSTEM"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:34:52.567+0530",
+    "rule": {
+      "level": 10,
+      "description": "Multiple Windows Failed Logins",
+      "id": "18152",
+      "groups": ["authentication", "authentication_failures"],
+      "mitre": {
+        "technique": ["T1110.001"],
+        "tactic": ["Credential Access"]
+      }
+    },
+    "agent": {
+      "id": "024",
+      "name": "BACKUP-SERVER-01",
+      "ip": "10.1.5.60"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697222692.567890",
+    "full_log": "Audit Failure,4625,Account Name: service_account Account Domain: PROD,Source Network Address: 192.168.1.200",
+    "decoder": {
+      "name": "windows_eventchannel"
+    },
+    "data": {
+      "win": {
+        "system": {
+          "eventID": "4625"
+        },
+        "eventdata": {
+          "targetUserName": "service_account",
+          "ipAddress": "192.168.1.200"
+        }
+      }
+    },
+    "location": "EventChannel"
+  },
+  {
+    "timestamp": "2025-10-13T21:36:33.890+0530",
+    "rule": {
+      "level": 12,
+      "description": "ET EXPLOIT Apache Struts OGNL Injection",
+      "id": "2024046",
+      "groups": ["ids", "web_attack", "suricata"],
+      "mitre": {
+        "technique": ["T1190"],
+        "tactic": ["Initial Access"]
+      }
+    },
+    "agent": {
+      "id": "002",
+      "name": "WEBSRV01-PROD",
+      "ip": "10.1.5.25"
+    },
+    "manager": {
+      "name": "wazuh-manager"
+    },
+    "id": "1697222793.890123",
+    "full_log": "10/13/2025-21:36:33.890 [**] [1:2024046:3] ET EXPLOIT Apache Struts OGNL Injection [**] [Priority: 1] {TCP} 123.45.67.89:12345 -> 10.1.5.25:8080",
+    "decoder": {
+      "name": "suricata"
+    },
+    "data": {
+      "srcip": "123.45.67.89",
+      "dstip": "10.1.5.25",
+      "dstport": "8080",
+      "proto": "TCP"
+    },
+    "location": "Suricata-EVE"
+  }
+]
